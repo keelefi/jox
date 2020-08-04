@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.3)
 
-project(job-executor)
+project(jox)
 
 find_package(yaml-cpp REQUIRED)
 

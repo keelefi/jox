@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-namespace job_executor {
+namespace jox {
 
 job::job(
     const std::string& name,

@@ -1,15 +1,15 @@
-# Job Executor
+# Jox
 
-Job Executor is a program that starts other programs. It takes as input argument
-a yaml file containing the configuration which programs to start. The programs
-will be started in parallel (when possible).
+Jox is the Job Executor, a program that starts other programs. It takes as
+input argument a yaml file containing the configuration which programs to
+start. The programs will be started in parallel (when possible).
 
 ## Known bugs
 
 ### Programs that fork and create further children are not waited on correctly.
 
-Instead of waiting on all the children that a spawned process has created, Job
-Executor only waits on the main process which it spawned itself.
+Instead of waiting on all the children that a spawned process has created, Jox
+only waits on the main process which it spawned itself.
 
 ## YAML
 
@@ -69,8 +69,8 @@ To build:
 
 To run:
 
-    $ bin/src/job-executor <yaml-file>
+    $ bin/src/jox <yaml-file>
 
 ## Testing
 
-Currently, there are no tests for Job Executor.
+Currently, there are no tests for Jox.
