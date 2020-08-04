@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace job_executor {
+namespace jox {
 
 class job_container {
 public:

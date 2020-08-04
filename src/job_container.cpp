@@ -1,6 +1,6 @@
 #include "job_container.hh"
 
-namespace job_executor {
+namespace jox {
 
 job_container::job_container() :
         m_jobs(),

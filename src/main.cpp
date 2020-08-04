@@ -53,7 +53,7 @@ std::set<job_config> load_yaml(const std::string& filename)
     return job_configs;
 }
 
-void build_jobs(job_executor::job_container& job_container, const std::set<job_config>& job_configs)
+void build_jobs(jox::job_container& job_container, const std::set<job_config>& job_configs)
 {
     // instantiate objects
     for (const auto& job_config : job_configs)
@@ -64,16 +64,16 @@ void build_jobs(job_executor::job_container& job_container, const std::set<job_c
     // set dependencies correctly
     for (const auto& job_config : job_configs)
     {
-        job_executor::job* job = job_container.get_job(job_config.name);
+        jox::job* job = job_container.get_job(job_config.name);
 
         for (const auto& job_after : job_config.after)
         {
-            job_executor::job* job_waiting_on = job_container.get_job(job_after);
+            jox::job* job_waiting_on = job_container.get_job(job_after);
             job->add_waiting_on(job_waiting_on);
         }
         for (const auto& job_before : job_config.before)
         {
-            job_executor::job* job_waiter = job_container.get_job(job_before);
+            jox::job* job_waiter = job_container.get_job(job_before);
             job->add_waiter(job_waiter);
         }
     }
@@ -82,7 +82,7 @@ void build_jobs(job_executor::job_container& job_container, const std::set<job_c
     job_container.find_startable();
 }
 
-int main_loop(job_executor::job_container& job_container)
+int main_loop(jox::job_container& job_container)
 {
     pid_t pgid = getpgrp();
 
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
     }
     auto job_configs = load_yaml(filename);
 
-    job_executor::job_container job_container;
+    jox::job_container job_container;
     build_jobs(job_container, job_configs);
 
     return main_loop(job_container);
