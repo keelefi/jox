@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -5,24 +6,34 @@
 #include <set>
 #include <string>
 
+#include <libguile.h>
+
 #include "yaml-cpp/yaml.h"
 
 #include "job.hh"
 #include "job_container.hh"
+#include "scheme.h"
 
 struct job_config {
-    bool operator<(const job_config& rhs) const { return name < rhs.name; }
     std::string name;
+
+    bool scheme;
     std::string exec;
+    SCM scheme_job;
+
     std::set<std::string> before;
     std::set<std::string> after;
 };
 
-std::set<job_config> load_yaml(const std::string& filename)
+bool operator<(const job_config& lhs, const std::string& rhs) { return lhs.name < rhs; }
+bool operator<(const std::string& lhs, const job_config& rhs) { return lhs < rhs.name; }
+bool operator<(const job_config& lhs, const job_config& rhs) { return lhs.name < rhs.name; }
+
+std::set<job_config, std::less<>> load_yaml(const std::string& filename)
 {
     YAML::Node config = YAML::LoadFile(filename);
 
-    std::set<job_config> job_configs;
+    std::set<job_config, std::less<>> job_configs;
 
     if (config["jobs"])
     {
@@ -30,6 +41,7 @@ std::set<job_config> load_yaml(const std::string& filename)
         {
             job_config job_config;
             job_config.name = job["name"].as<std::string>();
+            job_config.scheme = false;
             job_config.exec = job["exec"].as<std::string>();
 
             auto load_sequence = [](const YAML::Node& node) -> std::vector<std::string>
@@ -53,12 +65,19 @@ std::set<job_config> load_yaml(const std::string& filename)
     return job_configs;
 }
 
-void build_jobs(jox::job_container& job_container, const std::set<job_config>& job_configs)
+void build_jobs(jox::job_container& job_container, const std::set<job_config, std::less<>>& job_configs)
 {
     // instantiate objects
     for (const auto& job_config : job_configs)
     {
-        job_container.add(job_config.name, job_config.exec);
+        if (job_config.scheme)
+        {
+            job_container.add_scheme(job_config.name, job_config.scheme_job);
+        }
+        else
+        {
+            job_container.add(job_config.name, job_config.exec);
+        }
     }
 
     // set dependencies correctly
@@ -102,6 +121,90 @@ int main_loop(jox::job_container& job_container)
     return 0;
 }
 
+void scheme_add_job_config(std::set<job_config, std::less<>>& job_configs, const std::string& job_name)
+{
+    if (job_configs.contains(job_name))
+    {
+        return;
+    }
+
+    SCM scheme_job = find_job(job_name);
+
+    job_config job_config;
+    job_config.scheme_job = scheme_job;
+    job_config.name = job_read_string("job-name-proxy", scheme_job);
+    job_config.scheme = true;
+    job_config.after = job_read_list_strings("job-after-proxy", scheme_job);
+    job_config.before = job_read_list_strings("job-before-proxy", scheme_job);
+
+    job_configs.insert(job_config);
+
+    for (const auto& job_after : job_config.after)
+    {
+         scheme_add_job_config(job_configs, job_after);
+    }
+
+    for (const auto& job_before : job_config.before)
+    {
+         scheme_add_job_config(job_configs, job_before);
+    }
+}
+
+void main_scheme(void* data, int argc, char** argv)
+{
+    std::string filename = "jobs.yaml";
+    if (argc > 1)
+    {
+        filename = argv[1];
+    }
+
+    if (!filename.ends_with(".scm"))
+    {
+        // TODO: we should never end up here...
+    }
+
+    scm_c_primitive_load("src/jox.scm");
+
+    scm_c_primitive_load(filename.c_str());
+
+    SCM scheme_targets_var = scm_c_lookup("targets");
+    SCM scheme_targets = scm_variable_ref(scheme_targets_var);
+
+    std::set<job_config, std::less<>> job_configs;
+
+    SCM scheme_targets_cdr = scheme_targets;
+    while (!scm_is_null(scheme_targets_cdr))
+    {
+        job_config job_config;
+
+        SCM scheme_targets_car = scm_car(scheme_targets_cdr);
+
+        scm_dynwind_begin(static_cast<scm_t_dynwind_flags>(0));
+
+        char* job_name = job_read_string("job-name-proxy", scheme_targets_car);
+        scheme_add_job_config(job_configs, job_name);
+
+        scm_dynwind_end();
+
+        scheme_targets_cdr = scm_cdr(scheme_targets_cdr);
+    }
+
+    jox::job_container job_container;
+    build_jobs(job_container, job_configs);
+
+    main_loop(job_container);
+
+    //int targets_length = scm_length(scheme_targets);
+    //for (int k = 0; k < targets_length; ++k)
+    //{
+    //    SCM target_k = scm_list_ref(targets_length, scm_from_int(k));
+
+    //    // TODO: build job from target_k
+    //}
+
+    // TODO: main loop...
+}
+
 int main(int argc, char** argv)
 {
     std::string filename = "jobs.yaml";
@@ -109,6 +212,14 @@ int main(int argc, char** argv)
     {
         filename = argv[1];
     }
+
+    if (filename.ends_with(".scm"))
+    {
+        scm_boot_guile(argc, argv, main_scheme, NULL);
+
+        // Note: scm_boot_guile() never returns
+    }
+
     auto job_configs = load_yaml(filename);
 
     jox::job_container job_container;

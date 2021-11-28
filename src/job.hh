@@ -3,6 +3,8 @@
 #include <set>
 #include <string>
 
+#include <libguile.h>
+
 namespace jox {
 
 class job_container;
@@ -11,6 +13,9 @@ class job {
 public:
     job(const std::string&,
         const std::string&,
+        job_container&);
+    job(const std::string&,
+        SCM,
         job_container&);
 
     std::pair<pid_t, job*> start();
@@ -32,11 +37,15 @@ private:
     std::string m_name;
     std::string m_exec;
 
+    SCM m_scheme_job;
+
     std::set<job*> m_waiting_on;
     std::set<job*> m_waiters;
 
     bool m_running;
     bool m_completed;
+
+    bool m_scheme;
 
     job_container& m_job_container;
 };

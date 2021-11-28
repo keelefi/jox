@@ -1,0 +1,124 @@
+(define-record-type job
+    (make-job-impl name after before script)
+    employee?
+    (name       job-name)
+    (after      job-after       set-job-after!)
+    (before     job-before      set-job-before!)
+    (script     job-script      set-job-script!)
+    (result     job-result      set-job-result!))
+
+(define* (make-job name #:key (after '()) (before '()) (script (lambda ()))
+    (make-job-impl name after before script))
+
+;;; These getters are necessary so that the generated functions can be called from C code
+(define (job-name-proxy     job) (job-name      job))
+(define (job-after-proxy    job) (job-after     job))
+(define (job-before-proxy   job) (job-before    job))
+(define (job-script-proxy   job) (job-script    job))
+(define (job-result-proxy   job) (job-result    job))
+
+;;; Same as above, but for setters
+(define (set-job-after-proxy!   job after)  (set-job-after!    job after))
+(define (set-job-before-proxy!  job before) (set-job-before!   job before))
+(define (set-job-script-proxy!  job script) (set-job-script!   job script))
+(define (set-job-result-proxy!  job result) (set-job-result!   job result))
+
+
+;;; Example usage
+(define init (make-job "init" #:script (exec "echo init")))
+(define hello (make-job "hello" #:after (list 'init) #:script (shell "echo hello")))
+
+(set! targets (list hello))
+
+
+
+;;; TODO: Create macro "(job name ...)"
+
+
+
+
+
+
+
+
+
+
+
+(jobs 
+    (list
+        (define init (exec '(echo init)))
+        (define hello (after init) (exec '(echo hello world)))
+    )
+)
+
+(jobs 
+    (list
+        (define init
+            (exec '(echo init))
+        )
+        (define hello
+            (after init)
+            (exec '(echo hello world))
+        )
+        (define report 
+            (after init hello)
+            (if (lambda (rc) (if (zero? rc) (exec '(echo foobar)))))
+            (exec '(echo hello world))
+        )
+    )
+)
+
+
+
+
+(job init
+    (script '(shell "echo init")))
+
+(job hello
+    (after (list 'init))
+    (script '(shell "echo hello world")))
+
+(job report
+    (after (list 'init 'hello))
+    (script '(if (not (job-rc hello))
+        (shell "echo success")
+        (shell "echo failure"))))
+
+
+
+
+
+
+function:
+(define (name params) (implementation))
+
+lambda:
+(lambda (params) (implementation))
+
+combined:
+(define name (lambda (params) (implementation)))
+
+macro:
+(define-syntax
+    name
+    (syntax-rules (params)
+        ((name params)
+        (implementation))))
+        
+
+
+
+(define-syntax jobs
+    (syntax-rules (lst)
+        (
+
+
+
+(define-record-type job
+    (make-job name script before after)
+    job?
+    (name job-name)
+    (script job-script)
+    (before job-before (default '()))
+    (after job-after (default '())))
+

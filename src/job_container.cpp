@@ -35,6 +35,11 @@ void job_container::add(const std::string& name, const std::string& exec)
     m_jobs.emplace(std::string(name), job(name, exec, *this));
 }
 
+void job_container::add_scheme(const std::string& name, SCM scheme_job)
+{
+    m_jobs.emplace(std::string(name), job(name, scheme_job, *this));
+}
+
 bool job_container::remove(const std::string&)
 {
     // TODO

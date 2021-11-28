@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <string>
 
+#include <libguile.h>
+
 namespace jox {
 
 class job_container {
@@ -18,6 +20,7 @@ public:
     void job_startable(job*);
 
     void add(const std::string&, const std::string&);
+    void add_scheme(const std::string&, SCM);
     bool remove(const std::string&);
 
     job* get_job(const std::string&);

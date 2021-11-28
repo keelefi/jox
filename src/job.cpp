@@ -18,6 +18,24 @@ job::job(
         m_waiters(),
         m_running(false),
         m_completed(false),
+        m_scheme(false),
+        m_job_container(job_container)
+{
+}
+
+job::job(
+    const std::string& name,
+    SCM scheme_job,
+    job_container& job_container
+    ) :
+        m_name(name),
+        m_exec(),
+        m_scheme_job(scheme_job),
+        m_waiting_on(),
+        m_waiters(),
+        m_running(false),
+        m_completed(false),
+        m_scheme(true),
         m_job_container(job_container)
 {
 }
@@ -31,9 +49,35 @@ std::pair<pid_t, job*> job::start()
     }
     if (child_pid == 0)
     {
-        // Note: exec() returns only on error
-        execl("/bin/sh", "sh", "-c", m_exec.c_str(), NULL);
-        // TODO: check error
+        if (m_scheme)
+        {
+            SCM job_script_proxy_func_var = scm_c_lookup("job-script-proxy");
+            SCM job_script_proxy_func = scm_variable_ref(job_script_proxy_func_var);
+            SCM job_script = scm_call_1(job_script_proxy_func, m_scheme_job);
+
+            // Note: The result can be retrieved later by calling promise again. Calling the promise again will not
+            // have guile execute it again, but retrieve the last result.
+            SCM result = scm_force(job_script);
+
+            SCM set_job_result_proxy_func_var = scm_c_lookup("set-job-result-proxy!");
+            SCM set_job_result_proxy_func = scm_variable_ref(set_job_result_proxy_func_var);
+            scm_call_2(set_job_result_proxy_func, m_scheme_job, result);
+
+            if (scm_is_integer(result))
+            {
+                exit(scm_to_int(result));
+            }
+
+            // TODO: create error
+
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            // Note: exec() returns only on error
+            execl("/bin/sh", "sh", "-c", m_exec.c_str(), NULL);
+            // TODO: check error
+        }
     }
 
     m_running = true;
