@@ -1,0 +1,26 @@
+{
+"input": {
+    "jobA": {
+    },
+    "jobB": {
+        "after": [ "jobA" ]
+    }
+},
+"targets": [
+],
+"output": {
+    "jobA": {
+        "before": [ "jobB" ]
+    },
+    "jobB": {
+        "after": [ "jobA" ]
+    }
+},
+"errors": [
+    {
+        "error": "NO TARGETS",
+        "type": "ERROR",
+        "message": "No targets"
+    }
+]
+}

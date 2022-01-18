@@ -1,0 +1,22 @@
+{
+"input": {
+    "jobA": {
+    },
+    "jobB": {
+        "after": ["jobA"]
+    }
+},
+"targets": [
+    "jobB"
+],
+"output": {
+    "jobA": {
+        "before": ["jobB"]
+    },
+    "jobB": {
+        "after": ["jobA"]
+    }
+},
+"errors": [
+]
+}

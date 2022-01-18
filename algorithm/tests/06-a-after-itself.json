@@ -1,0 +1,22 @@
+{
+"input": {
+    "jobA": {
+        "after": ["jobA"]
+    }
+},
+"targets": [
+    "jobA"
+],
+"output": {
+    "jobA": {
+        "after": ["jobA"]
+    }
+},
+"errors": [
+    {
+        "error": "JOB DEPENDS ON ITSELF",
+        "type": "ERROR",
+        "message": "Job 'jobA' depends on itself"
+    }
+]
+}

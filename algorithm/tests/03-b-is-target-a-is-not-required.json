@@ -1,0 +1,24 @@
+{
+"input": {
+    "jobA": {
+    },
+    "jobB": {
+    }
+},
+"targets": [
+    "jobB"
+],
+"output": {
+    "jobA": {
+    },
+    "jobB": {
+    }
+},
+"errors": [
+    {
+        "error": "JOB NOT REQUIRED",
+        "type": "WARNING",
+        "message": "Job 'jobA' is not required"
+    }
+]
+}

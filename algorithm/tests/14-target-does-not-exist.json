@@ -1,0 +1,20 @@
+{
+"input": {
+    "jobA": {
+    }
+},
+"targets": [
+    "jobB"
+],
+"output": {
+    "jobA": {
+    }
+},
+"errors": [
+    {
+        "error": "JOB NOT FOUND",
+        "type": "ERROR",
+        "message": "'targets' references job 'jobB', but job 'jobB' does not exist"
+    }
+]
+}

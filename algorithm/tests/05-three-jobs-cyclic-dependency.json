@@ -1,0 +1,34 @@
+{
+"input": {
+    "jobA": {
+        "after": ["jobC"]
+    },
+    "jobB": {
+        "after": ["jobA"]
+    },
+    "jobC": {
+        "after": ["jobB"]
+    }
+},
+"targets": [
+    "jobC"
+],
+"output": {
+    "jobA": {
+        "after": ["jobC"]
+    },
+    "jobB": {
+        "after": ["jobA"]
+    },
+    "jobC": {
+        "after": ["jobB"]
+    }
+},
+"errors": [
+    {
+        "error": "CYCLIC DEPENDENCY",
+        "type": "ERROR",
+        "message": "Cyclic dependency detected"
+    }
+]
+}
