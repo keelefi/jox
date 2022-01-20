@@ -108,7 +108,7 @@ Here's the current status of the various implementations:
 
 | Language | Tests Created | Tests Passing |
 | --- | --- | --- |
-| Python | :x: | :x: |
+| Python | :heavy_check_mark: | :x: |
 | JavaScript | :x: | :x: |
 | C++ | :x: | :x: |
 | Golang | :x: | :x: |
