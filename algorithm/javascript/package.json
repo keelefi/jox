@@ -1,0 +1,14 @@
+{
+  "name": "algorithm",
+  "version": "1.0.0",
+  "description": "jox algorithm",
+  "main": "algorithm.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jest": "^27.4.7"
+  }
+}
