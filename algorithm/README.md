@@ -110,7 +110,7 @@ Here's the current status of the various implementations:
 | --- | --- | --- |
 | Python | :heavy_check_mark: | :x: |
 | JavaScript | :heavy_check_mark: | :x: |
-| C++ | :x: | :x: |
+| C++ | :heavy_check_mark: | :x: |
 | Golang | :x: | :x: |
 | Scheme | :x: | :x: |
 | Haskell | :x: | :x: |
