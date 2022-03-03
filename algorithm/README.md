@@ -112,6 +112,6 @@ Here's the current status of the various implementations:
 | JavaScript | :heavy_check_mark: | :x: |
 | C++ | :heavy_check_mark: | :x: |
 | Golang | :heavy_check_mark: | :x: |
-| Scheme | :x: | :x: |
+| Scheme | :heavy_check_mark: | :x: |
 | Haskell | :x: | :x: |
 
